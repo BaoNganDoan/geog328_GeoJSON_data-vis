@@ -69,13 +69,13 @@
         <div id="side-panel">
 
             <h2>Washington Light Rail Stations List</h2>
-            <button>Sort by Area</button>
+            <button onclick="sortTable()">Sort by Status</button>
 
             <table>
                 <tr>
-                    <th>SEQ_GOVTUNITS</th>
-                    <th>CELL_NAME</th>
-                    <th>Shape__Area</th>
+                    <th>STATUS</th>
+                    <th>SEGMENT</th>
+                    <th>NAME</th>
                 </tr>
             </table>
 
@@ -91,47 +91,46 @@
         // Create the map object
         let map = new mapboxgl.Map({
             container: 'map', // container ID
-            style: 'mapbox://styles/mapbox/satellite-v9', // style URL
-            zoom: 5.5, // starting zoom
-            center: [-119, 36] // starting center
+            style: 'mapbox://styles/mapbox/dark-v10', // style URL
+            zoom: 8, // starting zoom
+            center: [-122.2977, 47.5766] // starting center
         });
 
 
         async function geojsonFetch() {
 
-            let response, tsunami, california, table;
-            response = await fetch('assets/tsunami.geojson');
-            earthquakes = await response.json();
-            response = await fetch('assets/california.json');
-            japan = await response.json();
+            let response, light_rail_stations, washington, table;
+            response = await fetch('assets/light_rail_stations.geojson');
+            light_rail_stations = await response.json();
+            response = await fetch('assets/washington.json');
+            washington = await response.json();
 
             table = document.getElementsByTagName("table")[0];
             let row, cell1, cell2, cell3;
-            for (let i = 0; i < earthquakes.features.length; i++) {
+            for (let i = 0; i < light_rail_stations.features.length; i++) {
                 // Create an empty <tr> element and add it to the 1st position of the table:
                 row = table.insertRow(-1);
                 cell1 = row.insertCell(0);
                 cell2 = row.insertCell(1);
                 cell3 = row.insertCell(2);
-                cell1.innerHTML = earthquakes.features[i].properties.SEQ_GOVTUNITS;
-                cell2.innerHTML = earthquakes.features[i].properties.CELL_NAME;
-                cell3.innerHTML = new Date(earthquakes.features[i].properties.Shape__Area).toLocaleDateString(
-                    "en-US");
+                cell1.innerHTML = light_rail_stations.features[i].properties.STATUS;
+                cell2.innerHTML = light_rail_stations.features[i].properties.SEGMENT;
+                cell3.innerHTML = light_rail_stations.features[i].properties.NAME;
             }
 
 
             //load data to the map as new layers and table on the side.
             map.on('load', function loadingData() {
 
-                map.addSource('tsunami', {
+                map.addSource('light_rail_stations', {
                     type: 'geojson',
-                    data: tsunami
+                    data: light_rail_stations
                 });
 
                 map.addLayer({
-                    'id': 'tsunami-layer',
+                    'id': 'light_rail_stations-layer',
                     'type': 'circle',
-                    'source': 'tsunami',
+                    'source': 'light_rail_stations',
                     'paint': {
                         'circle-radius': 8,
                         'circle-stroke-width': 2,
@@ -141,15 +140,15 @@
                 });
 
 
-                map.addSource('california', {
+                map.addSource('washington', {
                     type: 'geojson',
-                    data: california
+                    data: washington
                 });
 
                 map.addLayer({
-                    'id': 'california-layer',
+                    'id': 'washington-layer',
                     'type': 'fill',
-                    'source': 'california',
+                    'source': 'washington',
                     'paint': {
                         'fill-color': '#0080ff', // blue color fill
                         'fill-opacity': 0.5
