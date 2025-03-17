@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>California Tsunami Inundation List</title>
+    <title>Washington Light Rail Stations List</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 
     <!-- Including the Mapbox GL CSS file -->
@@ -55,6 +55,12 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
+        @media (max-width: 1024px) {
+            #side-panel {
+                display: none;
+                }
+    }
     </style>
 </head>
 
@@ -62,14 +68,14 @@
     <main id="container">
         <div id="side-panel">
 
-            <h2>California Tsunami Inundation List</h2>
+            <h2>Washington Light Rail Stations List</h2>
             <button>Sort by Area</button>
 
             <table>
                 <tr>
-                    <th>id</th>
-                    <th>magnitude</th>
-                    <th>timestamp</th>
+                    <th>SEQ_GOVTUNITS</th>
+                    <th>CELL_NAME</th>
+                    <th>Shape__Area</th>
                 </tr>
             </table>
 
@@ -93,10 +99,10 @@
 
         async function geojsonFetch() {
 
-            let response, earthquakes, japan, table;
-            response = await fetch('assets/earthquakes.geojson');
+            let response, tsunami, california, table;
+            response = await fetch('assets/tsunami.geojson');
             earthquakes = await response.json();
-            response = await fetch('assets/japan.json');
+            response = await fetch('assets/california.json');
             japan = await response.json();
 
             table = document.getElementsByTagName("table")[0];
@@ -107,9 +113,9 @@
                 cell1 = row.insertCell(0);
                 cell2 = row.insertCell(1);
                 cell3 = row.insertCell(2);
-                cell1.innerHTML = earthquakes.features[i].properties.id;
-                cell2.innerHTML = earthquakes.features[i].properties.mag;
-                cell3.innerHTML = new Date(earthquakes.features[i].properties.time).toLocaleDateString(
+                cell1.innerHTML = earthquakes.features[i].properties.SEQ_GOVTUNITS;
+                cell2.innerHTML = earthquakes.features[i].properties.CELL_NAME;
+                cell3.innerHTML = new Date(earthquakes.features[i].properties.Shape__Area).toLocaleDateString(
                     "en-US");
             }
 
@@ -117,15 +123,15 @@
             //load data to the map as new layers and table on the side.
             map.on('load', function loadingData() {
 
-                map.addSource('earthquakes', {
+                map.addSource('tsunami', {
                     type: 'geojson',
-                    data: earthquakes
+                    data: tsunami
                 });
 
                 map.addLayer({
-                    'id': 'earthquakes-layer',
+                    'id': 'tsunami-layer',
                     'type': 'circle',
-                    'source': 'earthquakes',
+                    'source': 'tsunami',
                     'paint': {
                         'circle-radius': 8,
                         'circle-stroke-width': 2,
@@ -135,15 +141,15 @@
                 });
 
 
-                map.addSource('japan', {
+                map.addSource('california', {
                     type: 'geojson',
-                    data: japan
+                    data: california
                 });
 
                 map.addLayer({
-                    'id': 'japan-layer',
+                    'id': 'california-layer',
                     'type': 'fill',
-                    'source': 'japan',
+                    'source': 'california',
                     'paint': {
                         'fill-color': '#0080ff', // blue color fill
                         'fill-opacity': 0.5
