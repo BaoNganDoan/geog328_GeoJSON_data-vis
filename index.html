@@ -22,7 +22,7 @@
         #container {
             display: flex;
             height: 100vh;
-            flex-direction: row;
+            flex-direction: row-reverse;
             align-items: stretch;
         }
 
@@ -91,7 +91,7 @@
         // Create the map object
         let map = new mapboxgl.Map({
             container: 'map', // container ID
-            style: 'mapbox://styles/mapbox/dark-v10', // style URL
+            style: 'mapbox://styles/mapbox/streets-v11', // style URL
             zoom: 8, // starting zoom
             center: [-122.2977, 47.5766] // starting center
         });
@@ -102,7 +102,7 @@
             let response, light_rail_stations, washington, table;
             response = await fetch('assets/light_rail_stations.geojson');
             light_rail_stations = await response.json();
-            response = await fetch('assets/washington.json');
+            response = await fetch('assets/washington.geojson');
             washington = await response.json();
 
             table = document.getElementsByTagName("table")[0];
@@ -122,6 +122,21 @@
             //load data to the map as new layers and table on the side.
             map.on('load', function loadingData() {
 
+                map.addSource('washington', {
+                    type: 'geojson',
+                    data: washington
+                });
+
+                map.addLayer({
+                    'id': 'washington-layer',
+                    'type': 'fill',
+                    'source': 'washington',
+                    'paint': {
+                        'fill-color': '#0080ff', // blue color fill
+                        'fill-opacity': 0.5
+                    }
+                });
+
                 map.addSource('light_rail_stations', {
                     type: 'geojson',
                     data: light_rail_stations
@@ -136,22 +151,6 @@
                         'circle-stroke-width': 2,
                         'circle-color': 'red',
                         'circle-stroke-color': 'white'
-                    }
-                });
-
-
-                map.addSource('washington', {
-                    type: 'geojson',
-                    data: washington
-                });
-
-                map.addLayer({
-                    'id': 'washington-layer',
-                    'type': 'fill',
-                    'source': 'washington',
-                    'paint': {
-                        'fill-color': '#0080ff', // blue color fill
-                        'fill-opacity': 0.5
                     }
                 });
 
@@ -183,11 +182,10 @@
                     shouldSwitch = false;
                     /*Get the two elements you want to compare,
                     one from current row and one from the next:*/
-                    x = parseFloat(rows[i].getElementsByTagName("td")[1].innerHTML);
-                    y = parseFloat(rows[i + 1].getElementsByTagName("td")[1].innerHTML);
+                    x = rows[i].getElementsByTagName("td")[0].innerText.trim();
+                    y = rows[i + 1].getElementsByTagName("td")[0].innerText.trim();
                     //check if the two rows should switch place:
-                    if (x < y) {
-                        //if so, mark as a switch and break the loop:
+                    if (x.toLowerCase() > y.toLowerCase()) {
                         shouldSwitch = true;
                         break;
                     }
